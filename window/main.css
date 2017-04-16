@@ -1,0 +1,14 @@
+.sfbtn_s1 span {
+    display: inline;
+}
+.sfbtn_s1 span+span {
+    display: none;
+}
+
+.sfbtn_s2 span {
+    display: none;
+}
+
+.sfbtn_s2 span+span {
+    display: inline;
+}

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="main.css">
+    <script>
+        const {ipcRenderer} = require('electron')
+    </script>
+</head>
+<body>
+<div class="preview">
+<img id="image" alt="Вставьте изображение из буфера обмена с помощью Ctrl+V">
+</div>
+<div class="folders">
+    <div class="mainfolder">
+        <label for="rootpath">Корневая папка:</label> <input type="text" id="rootpath" disabled> <button type="button" id="chroot">Изменить</button>
+    </div>
+    <div class="subfolders">
+        <table>
+            <tr>
+                <td>
+                    <label for="subfolders">Подпапки</label>
+                </td>
+                <td class="sfbtn_s1" id="sftd">
+                    <span><button type="button" id="addsubfolder">
+                        Добавить папку
+                    </button></span>
+                    <span>
+                        <input type="text" placeholder="Введите название новой папки" id="newsfname">&nbsp;
+                        <button type="button" id="addsfok">&#10003;</button>&nbsp;
+                        <button type="button" id="addsfcancel">&#10005;</button>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <select id="subfolders" size="5">
+                        <option selected value=":root">Корневая папка</option>
+                    </select>
+                </td>
+                <td id="erroutp">
+
+                </td>
+            </tr>
+        </table>
+
+
+    </div>
+</div>
+<div class="buttons">
+    <button type="button" id="save" disabled>
+        Сохранить
+    </button>
+    <button type="button" id="clear" disabled>
+        Сбросить
+    </button>
+    <button type="button" id="show">
+        Показать файлы
+    </button>
+</div>
+
+<!--===========================================================================-->
+<script>
+    var imgdata = null;
+    document.onpaste = function(event) {
+        var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+        console.log(JSON.stringify(items)); // will give you the mime types
+        for (var index in items) {
+            var item = items[index];
+            if (item.kind === 'file') {
+                var blob = item.getAsFile();
+                var reader = new FileReader();
+                reader.onload = function (event) {
+                    img = document.getElementById("image");
+                    console.log(blob.type);
+                    img.src = event.target.result;
+                    imgdata = {
+                        "blob": event.target.result.split(',')[1],
+                        "mime": blob.type
+                    };
+                    setButtonsState('on')
+                };
+                reader.readAsDataURL(blob);
+            }
+        }
+    };
+    function setButtonsState(state) {
+        let btn1 = document.getElementById('save');
+        let btn2 = document.getElementById('clear');
+        if (state == "on") {
+            btn1.disabled= false;
+            btn2.disabled = false;
+        } else {
+            btn1.disabled= true;
+            btn2.disabled = true;
+        }
+    }
+    function switchAddSubfolder() {
+        let td = document.getElementById('sftd');
+        document.getElementById('erroutp').innerHTML = "";
+        if (td.getAttribute("class") == "sfbtn_s1") {
+            td.setAttribute("class", "sfbtn_s2")
+        } else {
+            document.getElementById("newsfname").value = "";
+            td.setAttribute("class", "sfbtn_s1")
+        }
+    }
+    document.getElementById("save").addEventListener('click', function (event) {
+        if (imgdata) {
+            let subfolder = document.getElementById('subfolders').value;
+            console.log(subfolder);
+            imgdata.subfolder = subfolder;
+            ipcRenderer.send('savefile', imgdata)
+        }
+    });
+    document.getElementById("clear").addEventListener('click', function (event) {
+        imgdata = null;
+        document.getElementById('image').removeAttribute('src');
+        setButtonsState('off')
+    });
+    document.getElementById('show').addEventListener('click', function (event) {
+        ipcRenderer.send('showfiles', null)
+    });
+    document.getElementById('chroot').addEventListener('click', function (event) {
+        ipcRenderer.send('changeroot', null)
+    });
+    document.getElementById('addsubfolder').addEventListener('click', switchAddSubfolder);
+    document.getElementById('addsfcancel').addEventListener('click', switchAddSubfolder);
+    document.getElementById('addsfok').addEventListener('click', function (event) {
+        let resp = ipcRenderer.sendSync('createsubfolder', document.getElementById('newsfname').value);
+        if (resp.error) {
+            console.log(resp.error);
+            document.getElementById('erroutp').innerHTML = resp.error
+        } else {
+            ipcRenderer.send('givesubfolders', null);
+            switchAddSubfolder()
+        }
+    });
+//    document.getElementById('addsubfolder').addEventListener('click', function (event) {
+//        let name = prompt("Укажите название для новой подпапки")
+//        ipcRenderer.send('createsubfolder', name)
+//    });
+    ipcRenderer.on('setpath', function (event, arg) {
+
+        document.getElementById('rootpath').value = arg;
+        ipcRenderer.send('givesubfolders', null)
+    });
+    ipcRenderer.send('givepath', null);
+    ipcRenderer.on('subfolders', function (event, arg) {
+        let select = document.getElementById('subfolders');
+        for (let i=select.options.length-1; i > 0; i--) {
+            select.options[i] = null
+        }
+        select.options[0].selected = true;
+        arg.forEach(function (item) {
+            select.options[select.options.length] = new Option(item, item)
+        })
+    })
+</script>
+</body>
+</html>
