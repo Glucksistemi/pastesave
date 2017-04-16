@@ -9,11 +9,8 @@ let config = files.loadConfig();
 function createWindow () {
     // Create the browser window.
     win = new BrowserWindow({
-        maximizable: false,
-        fullscreenable: false,
         title: "PasteSave"
     });
-
     // and load the index.html of the app.
     win.loadURL(url.format({
         pathname: path.join(__dirname, 'window/index.html'),
@@ -22,7 +19,7 @@ function createWindow () {
     }));
 
     // Open the DevTools.
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
 
     // Emitted when the window is closed.
     win.on('closed', () => {
@@ -53,6 +50,7 @@ app.on('activate', () => {
     // dock icon is clicked and there are no other windows open.
     if (win === null) {
         createWindow()
+
     }
 });
 
