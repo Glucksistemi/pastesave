@@ -9,7 +9,9 @@ let config = files.loadConfig();
 function createWindow () {
     // Create the browser window.
     win = new BrowserWindow({
-        title: "PasteSave"
+        title: "PasteSave",
+        width: 600,
+        height: 400
     });
     // and load the index.html of the app.
     win.loadURL(url.format({
@@ -79,4 +81,10 @@ ipcMain.on('givesubfolders', (event, arg)=> {
 });
 ipcMain.on('createsubfolder', (event, arg)=> {
     event.returnValue = files.createSubFolder(arg);
+});
+ipcMain.on('setheight', (event, height) => {
+    win.setSize(
+        600,
+        height+60
+    )
 });

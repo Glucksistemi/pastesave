@@ -1,3 +1,32 @@
+body {
+    background-color: #eee;
+}
+.preview, .folders, .buttons {
+    margin: 10px;
+    padding: 10px;
+    border-top: 1px solid #999;
+}
+.preview {
+    text-align: center;
+}
+
+.subfolders {
+    padding: 10px 0;
+}
+
+#rootpath {
+    width: 50%;
+}
+
+#subfolders {
+    width: 400px;
+}
+img#image {
+    max-width: 550px;
+    max-height: 400px;
+}
+
+/*switch spans for "create new subfolder"*/
 .sfbtn_s1 span {
     display: inline;
 }

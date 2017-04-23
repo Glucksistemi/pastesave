@@ -78,12 +78,22 @@
                         "blob": event.target.result.split(',')[1],
                         "mime": blob.type
                     };
-                    setButtonsState('on')
+                    setButtonsState('on');
+                    setTimeout(function () {
+                        ipcRenderer.send('setheight', getHeight());
+                    }, 20)
                 };
                 reader.readAsDataURL(blob);
             }
         }
     };
+    function getHeight() {
+        return Math.max(
+            document.body.scrollHeight, document.documentElement.scrollHeight,
+            document.body.offsetHeight, document.documentElement.offsetHeight,
+            document.body.clientHeight, document.documentElement.clientHeight
+        )
+    }
     function setButtonsState(state) {
         let btn1 = document.getElementById('save');
         let btn2 = document.getElementById('clear');
@@ -116,7 +126,9 @@
     document.getElementById("clear").addEventListener('click', function (event) {
         imgdata = null;
         document.getElementById('image').removeAttribute('src');
-        setButtonsState('off')
+        setButtonsState('off');
+        //console.log(document.body.scrollHeight)
+        ipcRenderer.send('setheight', 400)
     });
     document.getElementById('show').addEventListener('click', function (event) {
         ipcRenderer.send('showfiles', null)
