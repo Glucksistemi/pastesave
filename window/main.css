@@ -26,7 +26,27 @@ img#image {
     max-height: 400px;
 }
 
-/*switch spans for "create new subfolder"*/
+/*==================status==================*/
+#status {
+    display: none;
+}
+
+#status.success {
+    display: block;
+    background-color: lightgreen;
+    color: #117711;
+    min-height: 20px;
+}
+
+#status.error {
+    display: block;
+    background-color: red;
+    color: white;
+    min-height: 20px;
+}
+
+/*==================switch spans for "create new subfolder"==================*/
+
 .sfbtn_s1 span {
     display: inline;
 }

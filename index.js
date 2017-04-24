@@ -61,7 +61,7 @@ app.on('activate', () => {
 });
 
 ipcMain.on('savefile', (event, arg) => {
-   files.saveImage(arg)
+   event.sender.send("filesaved", files.saveImage(arg))
 });
 
 ipcMain.on('showfiles', (event, arg) => {

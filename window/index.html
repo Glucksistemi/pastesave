@@ -11,6 +11,9 @@
 <div class="preview">
 <img id="image" alt="Вставьте изображение из буфера обмена с помощью Ctrl+V">
 </div>
+<div id="status">
+
+</div>
 <div class="folders">
     <div class="mainfolder">
         <label for="rootpath">Корневая папка:</label> <input type="text" id="rootpath" disabled> <button type="button" id="chroot">Изменить</button>
@@ -94,6 +97,22 @@
             document.body.clientHeight, document.documentElement.clientHeight
         )
     }
+
+    function setActionStatus(reply) {
+        var block = document.getElementById("status");
+        block.setAttribute("class", "");
+        block.innerHTML = "";
+        setTimeout(function () {
+            if (reply.success) {
+                block.setAttribute("class", "success");
+                block.innerHTML = reply.success
+            } else if (reply.error) {
+                block.setAttribute("class", "error");
+                block.innerHTML = reply.error
+            }
+        }, 70)
+    }
+
     function setButtonsState(state) {
         let btn1 = document.getElementById('save');
         let btn2 = document.getElementById('clear');
@@ -123,6 +142,9 @@
             ipcRenderer.send('savefile', imgdata)
         }
     });
+    ipcRenderer.on("filesaved", function (event, arg) {
+        setActionStatus(arg)
+    });
     document.getElementById("clear").addEventListener('click', function (event) {
         imgdata = null;
         document.getElementById('image').removeAttribute('src');
@@ -140,18 +162,13 @@
     document.getElementById('addsfcancel').addEventListener('click', switchAddSubfolder);
     document.getElementById('addsfok').addEventListener('click', function (event) {
         let resp = ipcRenderer.sendSync('createsubfolder', document.getElementById('newsfname').value);
-        if (resp.error) {
-            console.log(resp.error);
-            document.getElementById('erroutp').innerHTML = resp.error
-        } else {
+        if (!resp.error) {
             ipcRenderer.send('givesubfolders', null);
             switchAddSubfolder()
         }
+        setActionStatus(resp)
     });
-//    document.getElementById('addsubfolder').addEventListener('click', function (event) {
-//        let name = prompt("Укажите название для новой подпапки")
-//        ipcRenderer.send('createsubfolder', name)
-//    });
+
     ipcRenderer.on('setpath', function (event, arg) {
 
         document.getElementById('rootpath').value = arg;

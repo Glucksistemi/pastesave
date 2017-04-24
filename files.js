@@ -1,6 +1,8 @@
 var fs = require('fs');
 const {app} = require('electron');
 var path = require("path");
+const strings = require('./strings.json');
+
 exports.loadConfig = function () {
     var cfile = path.join(app.getPath('appData'), 'pastesavecfg.json');
     if (fs.existsSync(cfile)) {
@@ -39,7 +41,7 @@ exports.saveImage = function (data) {
             if (mime_split[0] == "image") {
                 extension = mime_split[1]
             } else {
-                return { error: "BAD DATA" }
+                return { error: strings.FILE_BAD_DATA }
             }
             break;
     }
@@ -51,10 +53,13 @@ exports.saveImage = function (data) {
     } else {
         pth = path.join(this.config.folder, data.subfolder, name)
     }
-    fs.writeFileSync(pth, data.blob, 'base64');
-    return {
-        error: false,
-        path: pth
+    try {
+        fs.writeFileSync(pth, data.blob, 'base64');
+        return {
+            success: strings.FILE_SAVE_SUCCESS.replace("%1", name)
+        }
+    } catch (e) {
+        return { error: strings.FILE_SAVE_ERROR }
     }
 };
 
@@ -67,8 +72,7 @@ exports.createSubFolder = function (name) {
     try {
         fs.mkdirSync(path.join(this.config.folder, name))
     } catch (error) {
-        console.log(JSON.stringify(error));
-        return {error: JSON.stringify(error)}
+        return { error: strings.CREATE_FOLDER_ERROR }
     }
-    return "ok"
+    return { success: strings.CREATE_SUBFOLDER_SUCCESS.replace("%1", name) }
 };
