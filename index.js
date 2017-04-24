@@ -11,7 +11,10 @@ function createWindow () {
     win = new BrowserWindow({
         title: "PasteSave",
         width: 600,
-        height: 400
+        height: 400,
+        resizeable: false,
+        maximizable: false,
+        fullscreenable: false
     });
     // and load the index.html of the app.
     win.loadURL(url.format({
@@ -20,6 +23,7 @@ function createWindow () {
         slashes: true
     }));
 
+    win.setResizable(false);
     // Open the DevTools.
     //win.webContents.openDevTools();
 
